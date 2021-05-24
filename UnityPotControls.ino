@@ -14,12 +14,12 @@ int b1LastState = 0;     // previous state of the button
 
 int pressed = 0;
 
-uint8_t up = 0;
-uint8_t down = 0;
-uint8_t left = 0;
-uint8_t right = 0;
+byte up = 0;
+byte down = 0;
+byte left = 0;
+byte right = 0;
 
-byte bytesReceived[4];
+byte bytesReceived[6];
 
 // the setup routine runs once when you press reset:
 void setup() {
@@ -50,21 +50,33 @@ void loop() {
   Serial.print(b1LastState); 
   Serial.println();
   Serial.flush();
-  
-  int i=0;
-  while (Serial.available()>0) {
-    bytesReceived[i] = Serial.read();
-    i++;
+
+  bytesReceived[5]=0;
+  if (Serial.available()>5) {
+    int i=0;
+    while (Serial.available()>0) {
+      if (i<6) {
+        bytesReceived[i] = Serial.read();
+      }
+      else {
+        Serial.read();
+      }
+      i++;
+    }
   }
+  
   up = bytesReceived[0];
   down = bytesReceived[1];
   left = bytesReceived[2];
   right = bytesReceived[3];
 
-  analogWrite(l1Pin, up);
-  analogWrite(l2Pin, down);
-  
-  
+
+  if (bytesReceived[4] == 0 && bytesReceived[5] == 255){
+    analogWrite(l1Pin, up);
+    analogWrite(l2Pin, down);
+  }
+
+  //analogWrite(l1Pin, 120);
   delay(readTimeout);
 }
 
